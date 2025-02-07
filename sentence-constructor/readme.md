@@ -5,7 +5,7 @@
 
 1. I only have free tier access to online AI Assistants, and will have to experiement with free-tier capabilities and a Ollama + OpenWebUI local setup.
 
-2. I do not speak Japanese, even though I can read some Kanji.
+2. My Japanese knowledge is extremely basic and limited to spoken, even though I can read some Kanji.
 
 ## Questions
 
@@ -20,3 +20,7 @@
 4. Is my setup sufficiant to run 16B models? What about 32B models?
 
 5. Will I be able to assess the quality of the output given my (lack of) Japanese language skills? Will I need to pivot to Chinese instead?
+
+## Discoveries
+
+1. While I cannot read kana and therefore am not able to complete the sentence construction exercise in full Japanese, if I use romanji exclusively, it just may work!
