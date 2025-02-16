@@ -37,4 +37,5 @@ e.g.
     >[subject] [object] [particle] [recipient] [particle] [verb]
 
 **Cons:**
-- after a while Gemini started providing vocabulary in conjugated form.
+- In the initial prompt (carried over from ChatGPT), after a while Gemini started providing vocabulary in conjugated form.
+- Attempted correct this by providing positive and negative examples, but the negative example actually seems to have confused Gemini (which is algined with the prompting guide). This was fixed by providing only positive examples.
