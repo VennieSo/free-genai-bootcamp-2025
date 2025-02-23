@@ -2,9 +2,57 @@ from flask import request, jsonify, g
 from flask_cors import cross_origin
 from datetime import datetime
 import math
+import sqlite3
 
 def load(app):
-  # todo /study_sessions POST
+  @app.route('/api/study-sessions', methods=['POST'])
+  @cross_origin()
+  def create_study_session():
+    try:
+      cursor = app.db.cursor()
+      
+      # Extract input data
+      data = request.get_json()
+      group_id = data.get('group_id')
+      study_activity_id = data.get('study_activity_id')
+
+      # Validate input data
+      if group_id is None:
+        return jsonify({"error": "group_id is required"}), 400
+      if study_activity_id is None:
+        return jsonify({"error": "study_activity_id is required"}), 400
+
+      # Check if group_id exists
+      cursor.execute('SELECT id FROM groups WHERE id = ?', (group_id,))
+      if cursor.fetchone() is None:
+        return jsonify({"error": "group_id does not exist"}), 400
+
+      # Check if study_activity_id exists
+      cursor.execute('SELECT id FROM study_activities WHERE id = ?', (study_activity_id,))
+      if cursor.fetchone() is None:
+        return jsonify({"error": "study_activity_id does not exist"}), 400
+
+      # Insert data into the database
+      cursor.execute('''
+        INSERT INTO study_sessions (group_id, study_activity_id, created_at)
+        VALUES (?, ?, CURRENT_TIMESTAMP)
+      ''', (group_id, study_activity_id))
+
+      # Commit the transaction
+      app.db.commit()
+
+      # Retrieve the ID of the newly created session
+      session_id = cursor.lastrowid
+
+      # Return a response
+      return jsonify({"session_id": session_id}), 201
+
+    except sqlite3.IntegrityError as e:
+      return jsonify({"error": "Database integrity error: " + str(e)}), 400
+    except sqlite3.DatabaseError as e:
+      return jsonify({"error": "Database error: " + str(e)}), 500
+    except Exception as e:
+      return jsonify({"error": "An unexpected error occurred: " + str(e)}), 500
 
   @app.route('/api/study-sessions', methods=['GET'])
   @cross_origin()
