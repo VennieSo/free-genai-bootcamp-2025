@@ -201,53 +201,68 @@ def load(app):
 
   @app.route('/api/study-sessions/<int:id>/review', methods=['POST'])
   @cross_origin()
-  def submit_study_session_review(id):
+  def submit_review(id):
     try:
       cursor = app.db.cursor()
       
-      # Check if study session exists
+      # Extract input data
+      data = request.get_json()
+      word_reviews = data.get('word_reviews')
+      
+      # Validate input data
+      if not isinstance(word_reviews, list):
+        return jsonify({"error": "word_reviews must be an array"}), 400
+      
+      if not word_reviews:  # Check for non-empty reviews
+        return jsonify({"error": "word_reviews cannot be empty"}), 400
+      
+      # Check if session exists
       cursor.execute('SELECT id FROM study_sessions WHERE id = ?', (id,))
       if cursor.fetchone() is None:
         return jsonify({"error": "Study session not found"}), 404
       
-      # Extract input data
-      data = request.get_json()
-      word_reviews = data.get('word_reviews', [])
-      
-      # Validate word_reviews structure
-      if not isinstance(word_reviews, list) or not word_reviews:
-        return jsonify({"error": "Word reviews must be a non-empty array"}), 400
-      
+      # Validate each review
+      word_ids = set()  # To check for duplicates
       for review in word_reviews:
-        # Check that each review is an object
         if not isinstance(review, dict):
           return jsonify({"error": "Each review must be an object"}), 400
         
-        # Validate word_id
         word_id = review.get('word_id')
-        if not isinstance(word_id, int):
-          return jsonify({"error": "word_id must be a valid integer"}), 400
-        
-        # Validate correct
         correct = review.get('correct')
-        if correct is None or not isinstance(correct, bool):
-          return jsonify({"error": "correct must be a boolean value"}), 400
         
-        # Check for valid word_id
+        if not isinstance(word_id, int):
+          return jsonify({"error": "word_id must be an integer"}), 400
+        
+        if not isinstance(correct, bool):
+          return jsonify({"error": "correct must be a boolean"}), 400
+        
+        if word_id in word_ids:
+          return jsonify({"error": f"Duplicate word_id found: {word_id}"}), 400
+        
+        word_ids.add(word_id)
+        
+        # Check if word_id exists
         cursor.execute('SELECT id FROM words WHERE id = ?', (word_id,))
         if cursor.fetchone() is None:
           return jsonify({"error": f"word_id {word_id} does not exist"}), 400
+      
+      # Insert reviews into the database
+      review_ids = []
+      for review in word_reviews:
+        word_id = review['word_id']
+        correct = review['correct']
         
-        # Insert each review item into the database
         cursor.execute('''
-          INSERT INTO word_review_items (word_id, study_session_id, correct)
+          INSERT INTO word_review_items (study_session_id, word_id, correct)
           VALUES (?, ?, ?)
-        ''', (word_id, id, correct))
+        ''', (id, word_id, correct))
+        review_ids.append(cursor.lastrowid)
       
       # Commit the transaction
       app.db.commit()
       
-      return jsonify({"message": "Word reviews submitted successfully"}), 201
+      # Return a response
+      return jsonify({"message": "Reviews submitted successfully", "review_ids": review_ids}), 201
     
     except sqlite3.IntegrityError as e:
       return jsonify({"error": "Database integrity error: " + str(e)}), 400
