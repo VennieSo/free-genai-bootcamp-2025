@@ -1,0 +1,21 @@
+services:
+  ollama-service:
+    image: ollama/ollama
+    container_name: ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama:/root/.ollama
+    entrypoint: ["bash", "-c"]
+    command: ["ollama serve & sleep 10 && ollama run ${OLLAMA_MODEL} & wait"]
+    environment:
+      no_proxy: ${no_proxy}
+      https_proxy: ${https_proxy}
+      OLLAMA_MODEL: "llama3.2:1b"
+
+volumes:
+  ollama:
+
+networks:
+  default:
+    driver: bridge
