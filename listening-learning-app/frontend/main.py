@@ -1,3 +1,11 @@
+import sys
+import os
+
+from pathlib import Path
+# Get the absolute path to the project root
+root_dir = Path(__file__).parent.parent
+sys.path.insert(0, str(root_dir))
+
 import streamlit as st
 from typing import Dict
 import json

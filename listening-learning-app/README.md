@@ -1,4 +1,35 @@
 # language-learning-assistant
+
+## Set up
+
+Install AWS CLI if not installed
+
+```sh
+# configure AWS credentials
+aws configure
+
+# download requirements
+pip install -r requirements.txt
+```
+
+
+## Running the app
+
+** Run backend **
+
+```sh
+python backend/chat.py
+```
+
+** Run frontend **
+
+```sh
+streamlit run frontend/main.py
+```
+
+
+## App Info
+
 This is for the generative AI bootcamp
 
 **Difficulty:** Level 200 *(Due to RAG implementation and multiple AWS services integration)*
