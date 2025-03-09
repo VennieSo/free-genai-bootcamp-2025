@@ -1,3 +1,4 @@
+import os
 from youtube_transcript_api import YouTubeTranscriptApi
 from typing import Optional, List, Dict
 
@@ -59,12 +60,18 @@ class YouTubeTranscriptDownloader:
         Returns:
             bool: True if successful, False otherwise
         """
-        filename = f"./transcripts/{filename}.txt"
+        # Create the transcripts directory if it doesn't exist
+        transcripts_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'transcripts')
+        os.makedirs(transcripts_dir, exist_ok=True)
+        
+        # Create full file path
+        filepath = os.path.join(transcripts_dir, f"{filename}.txt")
         
         try:
-            with open(filename, 'w', encoding='utf-8') as f:
+            with open(filepath, 'w', encoding='utf-8') as f:
                 for entry in transcript:
                     f.write(f"{entry['text']}\n")
+            print(f"Transcript saved to: {filepath}")  # Added for debugging
             return True
         except Exception as e:
             print(f"Error saving transcript: {str(e)}")

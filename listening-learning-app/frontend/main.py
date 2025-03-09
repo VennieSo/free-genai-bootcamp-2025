@@ -14,6 +14,7 @@ import re
 
 
 from backend.chat import BedrockChat
+from backend.get_transcript import YouTubeTranscriptDownloader
 
 
 # Page config
@@ -206,6 +207,13 @@ def render_transcript_stage():
                     transcript_text = "\n".join([entry['text'] for entry in transcript])
                     st.session_state.transcript = transcript_text
                     st.success("Transcript downloaded successfully!")
+
+                    # Save the transcript to a file
+                    video_id = downloader.extract_video_id(url)
+                    if downloader.save_transcript(transcript, video_id):
+                        st.success("Transcript downloaded and saved successfully!")
+                    else:
+                        st.error("Transcript downloaded but failed to save to file.")
                 else:
                     st.error("No transcript found for this video.")
             except Exception as e:
@@ -224,7 +232,8 @@ def render_transcript_stage():
             )
     
         else:
-            st.info("No transcript loaded yet")
+  
+          st.info("No transcript loaded yet")
     
     with col2:
         st.subheader("Transcript Stats")
