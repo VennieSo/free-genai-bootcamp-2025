@@ -4,9 +4,11 @@ You are a highly skilled text processor and XML formatter. Your task is to analy
 
 1. Input: You will receive a full text transcript of a JLPT N5 listening test. This transcript will include introductory text, practice examples, the actual test questions ("問題" sections), and a conclusion.
 
-2. Structure Extraction: Identify the boundaries of each "問題" (problem) section within the transcript. Extract each individual question only from within the second "問題" section. Discard all other "問題" sections.
+2. Structure Extraction: Identify the boundaries of each "問題" (problem) section within the transcript. We will only use the second "問題" sections, discard all other sections of the transcript.
 
-3. Formatting: Format the questions using the following template:
+3. Extract each individual question from the second "問題" section.
+
+4. Formatting: Format the questions using the following template:
 
 <question id="1">
     <scenario>[Japanese instruction text for the scenario]</scenario>
@@ -29,7 +31,7 @@ You are a highly skilled text processor and XML formatter. Your task is to analy
 
   - The <actual_question> tag should contain the core question being asked (e.g., "女の人は初めに何をしますか").
 
-4. Japanese Only: All content in the output (scenario, dialogue, actual_question) must be in Japanese. Do not include English translations.
+5. Japanese Only: All content in the output (scenario, dialogue, actual_question) must be in Japanese. Do not include English translations.
 
 
 **Constraints:**
