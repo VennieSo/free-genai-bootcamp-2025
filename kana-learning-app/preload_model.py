@@ -10,10 +10,13 @@ def download_model():
     """
     Downloads the Manga OCR model from the Hugging Face Hub if it doesn't already exist locally.
     """
-    model_dir = "/models/manga-ocr"
+    # Create models directory in the current script's directory
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+    model_dir = os.path.join(base_dir, "models", "manga-ocr")
 
     if not os.path.exists(model_dir):
         logging.info("Downloading Manga OCR model...")
+        os.makedirs(model_dir, exist_ok=True)
         snapshot_download(repo_id="TareHimself/manga-ocr-base", local_dir=model_dir)
         logging.info("Model downloaded successfully")
     else:
