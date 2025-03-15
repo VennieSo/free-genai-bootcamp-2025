@@ -1,8 +1,8 @@
 # Kana Learning App
 
-This is Darya Petrashka's Kana Learning App from https://github.com/dashapetr/kana--streamlit-app
+This is Darya Petrashka's Kana Learning App from https://github.com/dashapetr/kana--streamlit-app. We updated the model download location to run on our environment, and integrated it with our Lang Portal.
 
-Updated the model download location.
+Since this app is for our absolute beginner students, we will leave it as-is for kana studying.
 
 
 ## Instructions
