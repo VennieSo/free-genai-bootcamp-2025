@@ -35,17 +35,30 @@ class TranscriptProcessor:
             response = self.bedrock_client.converse(
                 modelId=self.model_id,
                 messages=messages,
-                inferenceConfig={"temperature": 0.1}  # Lower temperature for more consistent formatting
+                inferenceConfig={"temperature": 0.1}
             )
             
-            # Extract the formatted output from the response
-            print("Response from Bedrock:", response)  # Print the entire response for debugging
-            return response['output']['message']['content'][0]['text']  # Return the raw response
+            # Extract and clean the output
+            raw_output = response['output']['message']['content'][0]['text']
+            
+            # Remove code block markers if present
+            cleaned_output = raw_output.strip()
+            if cleaned_output.startswith("```xml"):
+                cleaned_output = cleaned_output[6:]  # Remove ```xml
+            if cleaned_output.endswith("```"):
+                cleaned_output = cleaned_output[:-3]  # Remove ```
+            
+            # Ensure the XML is well-formed
+            try:
+                ET.fromstring(cleaned_output)  # Validate XML
+                return cleaned_output.strip()
+            except ET.ParseError as e:
+                raise Exception(f"Invalid XML structure in response: {str(e)}")
                 
         except Exception as e:
             raise Exception(f"Error processing transcript: {str(e)}")
             
-    def save_output(self, output_content: str, output_path: str = "output.txt") -> None:
+    def save_structured_transcript(self, output_content: str, output_path: str = "output.txt") -> None:
         """Save the output content to a file in the questions directory"""
         # Create the questions directory if it doesn't exist
         questions_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'questions')
@@ -59,6 +72,47 @@ class TranscriptProcessor:
                 f.write(output_content)  # Save the raw output content
         except Exception as e:
             raise Exception(f"Error saving output file: {str(e)}")
+
+    def format_structured_transcript(self, xml_content: str) -> str:
+        """Convert XML transcript to formatted HTML"""
+        try:
+            root = ET.fromstring(xml_content)
+            formatted_output = []
+            
+            for question in root.findall(".//question"):
+                # Question header
+                q_id = question.get('id')
+                formatted_output.append(f'<h4>Question {q_id}</h4>')
+                
+                # Scenario
+                scenario = question.find('scenario')
+                if scenario is not None and scenario.text:
+                    formatted_output.append(f'<p><strong>Scenario:</strong> {scenario.text}</p>')
+                
+                # Dialogue
+                dialogue = question.find('dialogue')
+                if dialogue is not None:
+                    formatted_output.append('<div class="dialogue">')
+                    for elem in dialogue:
+                        if elem.tag == 'speaker':
+                            speaker_text = elem.tail.strip() if elem.tail else ""
+                            formatted_output.append(
+                                f'<p><strong>{elem.text}:</strong> {speaker_text}</p>'
+                            )
+                    formatted_output.append('</div>')
+                
+                # Actual question
+                actual_question = question.find('actual_question')
+                if actual_question is not None and actual_question.text:
+                    formatted_output.append(
+                        f'<p><strong>Question:</strong> {actual_question.text}</p>'
+                    )
+                
+                formatted_output.append('<hr>')  # Divider between questions
+            
+            return '\n'.join(formatted_output)
+        except ET.ParseError as e:
+            return f'<p class="error">Error parsing XML: {str(e)}</p>'
 
 if __name__ == "__main__":
     # Example usage
@@ -79,7 +133,8 @@ if __name__ == "__main__":
     
     try:
         structured_transcript = processor.process_transcript(sample_transcript)
-        processor.save_output(structured_transcript)
+        processor.save_structured_transcript(structured_transcript)
         print("Successfully processed transcript and saved output!")
+        print(processor.format_structured_transcript(structured_transcript))
     except Exception as e:
         print(f"Error: {str(e)}")

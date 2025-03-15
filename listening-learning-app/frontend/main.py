@@ -11,10 +11,11 @@ from typing import Dict
 import json
 from collections import Counter
 import re
-
+import xml.etree.ElementTree as ET
 
 from backend.chat import BedrockChat
 from backend.get_transcript import YouTubeTranscriptDownloader
+from backend.structured_data import TranscriptProcessor
 
 
 # Page config
@@ -23,6 +24,27 @@ st.set_page_config(
     page_icon="🎌",
     layout="wide"
 )
+
+st.markdown("""
+<style>
+    .dialogue {
+        margin: 1em 0;
+        padding: 1em;
+        background: #f0f2f6;
+        border-radius: 0.5em;
+    }
+    .dialogue p {
+        margin: 0.5em 0;
+    }
+    .error {
+        color: #ff0000;
+    }
+    hr {
+        margin: 2em 0;
+        opacity: 0.2;
+    }
+</style>
+""", unsafe_allow_html=True)
 
 # Initialize session state
 if 'transcript' not in st.session_state:
@@ -257,13 +279,36 @@ def render_structured_stage():
     
     with col1:
         st.subheader("Dialogue Extraction")
-        # Placeholder for dialogue processing
-        st.info("Dialogue extraction will be implemented here")
+        if st.session_state.transcript:
+            processor = TranscriptProcessor()
+            
+            if 'structured_transcript' not in st.session_state:
+                try:
+                    structured_transcript = processor.process_transcript(st.session_state.transcript)
+                    st.session_state.structured_transcript = structured_transcript
+                except Exception as e:
+                    st.error(f"Error processing transcript: {str(e)}")
+            else:
+                structured_transcript = st.session_state.structured_transcript
+
+            # Format and display the structured transcript
+            formatted_transcript = processor.format_structured_transcript(structured_transcript)
+            # Replace text_area with write/markdown
+            st.write(formatted_transcript, unsafe_allow_html=True)
+        else:
+            st.info("No transcript loaded yet")
         
     with col2:
-        st.subheader("Data Structure")
-        # Placeholder for structured data view
-        st.info("Structured data view will be implemented here")
+        st.subheader("Raw XML Structure")
+        if st.session_state.transcript and 'structured_transcript' in st.session_state:
+            st.text_area(
+                label="Raw XML",
+                value=st.session_state.structured_transcript,
+                height=400,
+                disabled=True
+            )
+        else:
+            st.info("No transcript loaded yet")
 
 def render_rag_stage():
     """Render the RAG implementation stage"""
