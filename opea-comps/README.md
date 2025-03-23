@@ -175,3 +175,7 @@ https://github.com/opea-project/GenAIComps/blob/main/comps/llms/deployment/docke
 Failed!!! cannot get one docker service to talk to another?
 
 
+
+#TODO: docker deployment by building other images, and making them work with docket networking
+
+
