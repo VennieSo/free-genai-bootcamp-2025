@@ -1,0 +1,38 @@
+services:
+  ollama-server:
+    image: ollama/ollama
+    container_name: ollama-server
+    ports:
+      - ${LLM_ENDPOINT_PORT:-8008}:11434
+    volumes:
+      - ollama:/root/.ollama
+    environment:
+      no_proxy: ${no_proxy}
+      http_proxy: ${http_proxy}
+      https_proxy: ${https_proxy}
+      OLLAMA_MODEL: ${LLM_MODEL_ID}
+      host_ip: ${host_ip}
+
+  textgen-service-ollama:
+    image: ${REGISTRY:-opea}/llm-textgen:${TAG:-latest}
+    container_name: textgen-service-ollama
+    ports:
+      - ${TEXTGEN_PORT:-9000}:9000
+    ipc: host
+    environment:
+      no_proxy: ${no_proxy}
+      http_proxy: ${http_proxy}
+      https_proxy: ${https_proxy}
+      LLM_ENDPOINT: ${LLM_ENDPOINT}
+      LLM_MODEL_ID: ${LLM_MODEL_ID}
+      LLM_COMPONENT_NAME: ${LLM_COMPONENT_NAME:-OpeaTextGenService}
+      HF_TOKEN: ${HF_TOKEN}
+      LOGFLAG: ${LOGFLAG:-False}
+    restart: unless-stopped
+
+volumes:
+  ollama:
+
+networks:
+  default:
+    driver: bridge
