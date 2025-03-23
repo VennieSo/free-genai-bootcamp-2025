@@ -5,3 +5,5 @@ export host_ip=localhost
 export LLM_ENDPOINT="http://${host_ip}:${LLM_ENDPOINT_PORT}"
 export LLM_MODEL_ID="gemma2:2b"
 export service_name="textgen-service-ollama"
+export OTEL_SDK_DISABLED=true
+export OTEL_TRACES_EXPORTER=none
