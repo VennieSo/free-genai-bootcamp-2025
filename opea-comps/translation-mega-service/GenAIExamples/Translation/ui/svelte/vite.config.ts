@@ -19,5 +19,14 @@ export default defineConfig({
   plugins: [sveltekit()],
   server: {
     allowedHosts: true,
+    // Proxy /v1/translation to the Translation MegaService at port 8888
+    proxy: {
+      '/v1/translation': {
+        target: 'http://127.0.0.1:8888',
+        changeOrigin: true,
+        secure: false,
+        rewrite: (path) => path
+      }
+    }
   },
 });

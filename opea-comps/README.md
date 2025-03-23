@@ -127,6 +127,11 @@ npm run dev
 ```
 
 
+The frontend app makes request to `/v1/translation` (defined in .env). 
+
+The OPEA example [full instruction](https://opea-project.github.io/latest/GenAIExamples/Translation/docker_compose/intel/cpu/xeon/README.html) uses `nginx` to proxy user input query. Without it, the requests fail to resolve.
+
+Solution: update `vite.config.ts` to proxy the request directly to the Translation MegaService running on port 8888.
 
 
 
