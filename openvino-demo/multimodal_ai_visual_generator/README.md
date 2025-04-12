@@ -1,3 +1,18 @@
+# OpenVINO Demo Kit
+
+### Technical Uncertainties
+
+OpenVINO is intended for Intel hardware. In the demo video it's on a Intel AIPC with 32GB RAM. Will this run on a MacBook Air with 16GB RAM?
+
+
+
+
+
+### Original README below
+
+---
+
+
 <div id="top" align="center">
   <h1>AI Adventure Experience with OpenVINO™ GenAI</h1>
   <h4>
